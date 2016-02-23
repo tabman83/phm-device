@@ -22,7 +22,12 @@ cd bcm2835-1.49
 make
 sudo make check
 sudo make install
-sudo npm install -g node-dht-sensor
+```
+
+Install specific Node.js version, as required by [node-dht-sensor](https://github.com/momenso/node-dht-sensor) v. 0.0.11
+```
+wget http://node-arm.herokuapp.com/node_latest_armhf.deb 
+sudo dpkg -i node_latest_armhf.deb
 ```
 
 ## Notes
