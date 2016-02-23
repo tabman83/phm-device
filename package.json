@@ -1,12 +1,15 @@
 {
-  "name": "phm-simulated-sensor",
+  "name": "phm-device",
   "version": "1.0.0",
   "description": "Sensor/Actuator device for personal-heating-manager",
   "scripts": {
     "start": "node index.js"
   },
   "author": "Antonino Parisi <tabman83@gmail.com>",
-  "repository:": "https://github.com/tabman83/phm-device.git",
+  "repository": {
+	"type": "git",
+	"url": "https://github.com/tabman83/phm-device.git"
+  },
   "license" : "SEE LICENSE IN LICENSE",
   "dependencies": {
     "async": "^1.5.2",
