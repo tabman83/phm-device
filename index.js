@@ -8,7 +8,20 @@ console.log('Starting up');
 var async = require('async');
 var pollingInterval = 1000 * (process.env.POLLING_INTERVAL || 5); 
 
-function loadProtoBuf(cb) {	
+function initializeSensor(cb) {
+	var sensorLib = null;
+	try {
+		sensorLib = require('node-dht-sensor');
+		sensorLib.initialize(11, process.env.SENSOR_GPIO || 4);
+	} 
+	catch(err) {
+		console.log('You are not running on a BCM2835 hardware.');
+		cb(err);
+	}
+	cb(null, sensorLib);
+}
+
+function loadProtoBuf(sensorLib, cb) {	
 	var request = require('request');
 	request.get('https://raw.githubusercontent.com/tabman83/phm-messages/master/sensor-message.proto', function (err, response, body) {
 		if(err) {
@@ -26,11 +39,12 @@ function loadProtoBuf(cb) {
 			return;
 		}
 		var SensorMessage = builder.build('SensorMessage');
-		cb(null, SensorMessage);
+		cb(null, sensorLib, SensorMessage);
 	});	
 }
 
-function initializeMqtt(SensorMessage, cb) {
+function initializeMqtt(sensorLib, SensorMessage, cb) {
+	
 	var terminate = function() {
 		if(handle) {
 			clearTimeout(handle);
@@ -39,16 +53,21 @@ function initializeMqtt(SensorMessage, cb) {
 			client.end(true);
 		}
 	}	
-
+	
 	var publishSomething = function() {
-		var mean = 25;
-		var offset = Math.random() * 5 - 2.5;
+		//var mean = 25;
+		//var offset = Math.random() * 5 - 2.5;
 		
-		var sensorMessage = new SensorMessage({
+		var readout = sensorLib.read();
+		
+		var payload = {
 			timestamp: Date.now(),
 			location: process.env.MQTT_CLIENT_ID,
-			temperature: mean + offset
-		});	
+			temperature: readout.temperature, //mean + offset
+			humidity: readout.humidity
+		};
+		
+		var sensorMessage = new SensorMessage(payload);
 		
 		var buffer = sensorMessage.toBuffer();
 		
@@ -58,7 +77,7 @@ function initializeMqtt(SensorMessage, cb) {
 				cb(err);
 				return;
 			}
-			console.log('Published: ' + (mean + offset));
+			console.log('Published: ', payload);
 		});
 	}
 	
@@ -90,7 +109,7 @@ function initializeMqtt(SensorMessage, cb) {
 	});
 }
 
-async.waterfall([loadProtoBuf, initializeMqtt], function(err) {
+async.waterfall([initializeSensor, loadProtoBuf, initializeMqtt], function(err) {
 	if(err) {
 		console.log(err);
 	}
