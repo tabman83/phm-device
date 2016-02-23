@@ -3,7 +3,10 @@ if(!process.env.MQTT_CLIENT_ID) {
 	return;
 }
 
+console.log('Starting up');
+
 var async = require('async');
+var pollingInterval = 1000 * (process.env.POLLING_INTERVAL || 5); 
 
 function loadProtoBuf(cb) {	
 	var request = require('request');
@@ -73,7 +76,7 @@ function initializeMqtt(SensorMessage, cb) {
 	var handle = null;
 
 	client.on('connect', function () {
-		handle = setInterval(publishSomething, 5000);
+		handle = setInterval(publishSomething, pollingInterval);
 	});
 
 	client.on('error', function (err) {
