@@ -11,5 +11,19 @@ Sensor/Actuator device for personal-heating-manager
 - MQTT_USERNAME (optional) MQTT username (default is none)
 - MQTT_PASSWORD (optional) MQTT password (default is none)
 
+## Prerequisites
+For DHT11/DHT22/AM2302 sensors, you need to download and install the [BCM2835](http://www.airspayce.com/mikem/bcm2835/) library.
+
+```
+wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.49.tar.gz
+tar zxvf bcm2835-1.49.tar.gz
+cd bcm2835-1.49
+./configure
+make
+sudo make check
+sudo make install
+sudo npm install -g node-dht-sensor
+```
+
 ## Notes
 Loads protobuf definitions from https://github.com/tabman83/phm-messages.git
