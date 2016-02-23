@@ -86,12 +86,15 @@ function initializeMqtt(sensorLib, SensorMessage, cb) {
 	if(process.env.MQTT_PORT) {
 		mqttUrl += ':' + process.env.MQTT_PORT;
 	}
+	
+	console.log('Connecting to ' + mqttUrl);
+	
 	var client  = mqtt.connect(mqttUrl, {
 		clientId: process.env.MQTT_CLIENT_ID,
 		username: process.env.MQTT_USERNAME,
 		password: process.env.MQTT_PASSWORD
 	});
-
+	
 	var handle = null;
 
 	client.on('connect', function () {
@@ -111,6 +114,6 @@ function initializeMqtt(sensorLib, SensorMessage, cb) {
 
 async.waterfall([initializeSensor, loadProtoBuf, initializeMqtt], function(err) {
 	if(err) {
-		console.log(err);
+		console.error(err);
 	}
 });
