@@ -10,13 +10,19 @@ var pollingInterval = 1000 * (process.env.POLLING_INTERVAL || 5);
 
 function initializeSensor(cb) {
 	var sensorLib = null;
+	var result = false;
 	try {
 		sensorLib = require('node-dht-sensor');
-		sensorLib.initialize(11, process.env.SENSOR_GPIO || 4);
+		result = sensorLib.initialize(11, process.env.SENSOR_GPIO || 4);
 	} 
 	catch(err) {
 		console.log('You are not running on a BCM2835 hardware.');
 		cb(err);
+		return;
+	}
+	if(!result) {
+		cb(new Error('Initialization failed. You probably need to run with root/Administrator privileges.'))
+		return;
 	}
 	cb(null, sensorLib);
 }
@@ -77,7 +83,7 @@ function initializeMqtt(sensorLib, SensorMessage, cb) {
 				cb(err);
 				return;
 			}
-			console.log('Published: ', payload);
+			//console.log('Published: ', payload);
 		});
 	}
 	
@@ -108,7 +114,7 @@ function initializeMqtt(sensorLib, SensorMessage, cb) {
 	
 	process.on('SIGINT', function () {
 		terminate();
-		cb();
+		cb(null);
 	});
 }
 
